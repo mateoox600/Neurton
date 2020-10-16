@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset='utf-8'>
+    <title id="title">Neurton</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://kit.fontawesome.com/d2be0fd0da.js" crossorigin="anonymous"></script>
+    <script>
+        const fs = require('fs');
+
+        var settings;
+
+        function loadSettings(){
+            settings = require(`${__dirname}/data/settings.json`);
+        }
+
+        function saveSettings(){
+            fs.writeFile(`${__dirname}/data/settings.json`, JSON.stringify(settings), (e) => {if(e != null) console.log(e);});
+        }
+
+        var favorites;
+
+        function loadFavorites(){
+            favorites = require(`${__dirname}/data/favorites.json`);
+        }
+
+        function saveFavorites(){
+            fs.writeFile(`${__dirname}/data/favorites.json`, JSON.stringify(favorites), (e) => {if(e != null) console.log(e);});
+        }
+
+        loadSettings();
+        loadFavorites();
+    </script>
+</head>
+<body>
+    <div id="top-bar">
+        <div id="tab-bar">
+        </div>
+        <button onclick="createTab()" class="buttons"><i class="fas fa-plus"></i></button>
+    </div>
+    <div id="bar">
+        <button onclick="backward()" class="buttons" id="backward"><i class="fas fa-arrow-left"></i></button>
+        <button onclick="forward()" class="buttons" id="forward"><i class="fas fa-arrow-right"></i></button>
+        <button onclick="refresh()" class="buttons" id="rld-button"><i class="fas fa-redo"></i></button>
+        <input type="text" name="url" id="url">
+        <button onclick="favoriteButtonClick()" class="buttons" id="favorites"><i class="far fa-star"></i></button>
+        <button onclick="goSettings()" class="buttons" id="settingsButton"><i class="fas fa-ellipsis-v"></i></button>
+    </div>
+    <div id="favorites-bar">
+
+    </div>
+    <div id="tabs">
+    </div>
+    <script src="js/tabsManager.js"></script>
+    <script>
+        const tabsBar = document.getElementById('tab-bar');
+        const favoritesBar = document.getElementById('favorites-bar');
+        const tabs = document.getElementById('tabs');
+        const url = document.getElementById('url');
+        const path = require('path')
+        const favoritesButton = document.getElementById('favorites');
+        const reloadButton = document.getElementById('rld-button');
+        
+        createTab();
+
+        function backward(){
+            if(tabs.children[currentIdx].canGoBack) tabs.children[currentIdx].goBack();
+        }
+
+        function forward(){
+            if(tabs.children[currentIdx].canGoForward) tabs.children[currentIdx].goForward();
+        }
+
+        function refresh(){
+            if(tabs.children[currentIdx].isLoading()) tabs.children[currentIdx].stop();
+            else tabs.children[currentIdx].reload();
+        }
+        
+        function goSettings(idx){
+            createTab(`file://${path.join(__dirname, 'settings.html')}`);
+        }
+
+        function addFavorite(){
+
+            var favorite = document.createElement('button');
+            favorite.id = tabs.children[currentIdx].src;
+            favorite.class = 'favorite';
+            favorite.innerHTML = tabs.children[currentIdx].getTitle();
+            favorite.onclick = () => {
+                createTab(favorite.id);
+            };
+
+            favoritesBar.append(favorite);
+            favorites[tabs.children[currentIdx].src] = tabs.children[currentIdx].getTitle();
+            favoritesButton.children[0].style.color = '#73a9ff'
+        }
+
+        function removeFavorite(){
+
+            var favorite = document.getElementById(tabs.children[currentIdx].src);
+            favorite.remove();
+
+            delete favorites[tabs.children[currentIdx].src]
+            favoritesButton.children[0].style.color = '#fff'
+        }
+        
+        url.onkeydown = () => {
+            if(event.keyCode == 13) goSite();
+        };
+
+        favoritesButton.onmouseenter = (e) => {
+            favoritesButton.innerHTML = '<i class="fas fa-star"></i>';
+            if(favorites.hasOwnProperty(site[currentIdx])) favoritesButton.children[0].style.color = '#73a9ff';
+            else favoritesButton.children[0].style.color = '#fff';
+        };
+        favoritesButton.onmouseout = (e) => {
+            favoritesButton.innerHTML = '<i class="far fa-star"></i>';
+            if(favorites.hasOwnProperty(site[currentIdx])) favoritesButton.children[0].style.color = '#73a9ff';
+            else favoritesButton.children[0].style.color = '#fff';
+        };
+        function favoriteButtonClick(){
+            if(favorites[tabs.children[currentIdx].src] == null || favorites[tabs.children[currentIdx].src] == undefined) addFavorite();
+            else removeFavorite();
+            saveFavorites();
+        }
+
+        Object.keys(favorites).forEach(favoriteKey => {
+            var favorite = document.createElement('button');
+            favorite.id = favoriteKey;
+            favorite.class = 'favorite';
+            favorite.innerHTML = favorites[favoriteKey];
+            favorite.onclick = () => {
+                createTab(favorite.id);
+            };
+
+            favoritesBar.append(favorite);
+        });
+        updateSite();
+    </script>
+</body>
+</html>

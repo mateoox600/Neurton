@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Settings</title>
+        <link rel="stylesheet" type="text/css" href="css/settings.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <div id="content">
+            <header>
+                <h1>{{title}}</h1>
+            </header>
+            <div>
+                <div id="defaultWebsiteURL">
+                    <h3 class="website">{{defaultWebsite.title}}</h3>
+                    <p class="description-website">{{defaultWebsite.description}}</p>
+                    <input type="text" name="defaultWebsiteURL" class="input">
+                    <script>
+                        const defaultWebsiteURLDiv = document.getElementById('defaultWebsiteURL');
+                        defaultWebsiteURLDiv.querySelector('.input').onkeydown = () => {
+                            if(event.keyCode == 13) console.log(`neurtonSettingsEvent:{"field":"defaultWebsiteURL","value":"${defaultWebsiteURLDiv.querySelector('.input').value}"}`);
+                        }
+                    </script>
+                </div>
+                <div id="lang">
+                    <h3 class="website">{{lang.title}}</h3>
+                    <p class="description-website">{{lang.description}}</p>
+                    <select name="lang" class="input" onchange="updateLang(this.value)">
+                        <option value="fr">fr</option>
+                        <option value="en">en</option>
+                    </select>
+                    <script>
+                        const langDiv = document.getElementById('lang');
+                        function updateLang(newLang){
+                            console.log(`neurtonSettingsEvent:{"field":"lang","value":"${newLang}"}`);
+                        }
+                    </script>
+                </div>
+            </div>
+            <footer>
+                <p class="footer">
+
+                </p>
+            </footer>
+        </div>
+        <script>
+            var app;
+            (async () => {
+                var settings;
+                await fetch(`${__dirname}/data/settings.json`).then(r => r.text()).then(t => settings = JSON.parse(t));
+                var translation;
+                await fetch(`${__dirname}/data/translation.json`).then(r => r.text()).then(t => translation = JSON.parse(t));
+                var lang = settings.lang;
+                var langIdx;
+                for (var i = 0; i < langDiv.querySelector('.input').children.length; i++) {
+                    if(langDiv.querySelector('.input').children[i].value === lang){
+                        langIdx = i;
+                        break;
+                    }
+                }
+                langDiv.querySelector('.input').options[langIdx].defaultSelected = true;
+                console.log(defaultWebsiteURLDiv.querySelector('.input').value);
+                defaultWebsiteURLDiv.querySelector('.input').value = settings.defaultWebsiteURL;
+                console.log(defaultWebsiteURLDiv.querySelector('.input').value);
+                app = new Vue({
+                    el: '#content',
+                    data:{
+                        title: translation[lang].settings.title,
+                        defaultWebsite: {
+                            title: translation[lang].settings.defaultWebsite.title,
+                            description: translation[lang].settings.defaultWebsite.description
+                        },
+                        lang: {
+                            title: translation[lang].settings.lang.title,
+                            description: translation[lang].settings.lang.description
+                        }
+                    }
+                });
+            })();
+        </script>
+    </body>
+</html>

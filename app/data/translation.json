@@ -1,0 +1,28 @@
+{
+    "en": {
+        "settings": {
+            "title": "Settings",
+            "defaultWebsite": {
+                "title": "Default Website",
+                "description": "Change the default website when loading new page"
+            },
+            "lang": {
+                "title": "Lang",
+                "description": "Change the lang of the browser (restart browser to apply)"
+            }
+        }
+    },
+    "fr": {
+        "settings": {
+            "title": "Paramètres",
+            "defaultWebsite": {
+                "title": "Site par défaut",
+                "description": "Change le site charger a la création d'une nouvelle page"
+            },
+            "lang": {
+                "title": "Langue",
+                "description": "Change la langue du navigateur (redémarrage nécessaire pour appliquer un changement)"
+            }
+        }
+    }
+}
